@@ -40,6 +40,7 @@ class Account:
         # else:
         # self._first_name = Account.validate_name(new_first_name, "First Name")
         self.validate_and_set_name("_first_name", new_first_name, "First Name")
+        # self._first_name = new_first_name
 
     @property
     def last_name(self):
