@@ -1,9 +1,18 @@
 import itertools
+import numbers
+from datetime import datetime
 from timezone import TimeZone
 
 
 class Account:
     transaction_counter = itertools.count(100)
+    _interest_rate = 0.5 #%
+    _transaction_codes = {
+        "deposit": "D",
+        "withdraw": "W",
+        "interest": "I",
+        "rejected": "X"
+    }
 
     def __init__(self, account_number, first_name, last_name, time_zone=None, initial_balance=0):
         self._account_number = account_number
@@ -57,6 +66,18 @@ class Account:
             raise ValueError("must be a valid TimeZone object.")
         self._time_zone = value
 
+    @classmethod
+    def get_interest_rate(cls):
+        return cls._insterest_rate
+
+    @classmethod
+    def set_interest_rate(cls, value):
+        if not isinstance(value, numbers.Real):
+            raise ValueError("interest rate must be a number")
+        if value < 0:
+            raise ValueError("Interest rate cannot be negative")
+        cls._interest_rate = value
+
     # @staticmethod
     def validate_and_set_name(self, attribute_name, value, field_title):
         if value is None and len(str(value).strip()) == 0:
@@ -64,15 +85,26 @@ class Account:
         setattr(self, attribute_name, value)
 
 
+    def generate_confirmation_code(self, transaction_code):
+        dt_str = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+        return f"{transaction_code}-{self.account_number}-{dt_str}-{next(Account.transaction_counter)}"
+
     def make_transaction(self):
-        new_transaction_id = next(Account.transaction_counter)
-        return new_transaction_id
+        return self.generate_confirmation_code("dummy")
 
 
+a1 = Account("A100", "Ali", "Maleki")
+a1.make_transaction()
+a1.make_transaction()
+# generate_confirmation_code(62536, 6500, "X")
+
+acc1 = Account(42524, "Shayan", "naghi")
+acc2 = Account(54987, "Reza", "Noghshi")
+
+print(acc1.get_interest_rate)
+print(acc2.get_interest_rate)
 
 
-# acc1 = Account()
-# acc2 = Account()
 #
 # print(acc1.make_transaction())
 # print(acc2.make_transaction())
