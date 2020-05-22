@@ -93,6 +93,29 @@ class Account:
     def make_transaction(self):
         return self.generate_confirmation_code("dummy")
 
+    @staticmethod
+    def parse_confirmation_code(confirmation_code, preferred_time_zone=None):
+        # dummy-A100-20200522193433-102
+        parts = confirmation_code.split("-")
+        if len(parts) != 4:
+            raise ValueError("Invalid confirmation code.")
+
+        transaction_code, account_number, raw_dt_utc, transaction_id = parts
+
+        try:
+            dt_utc = datetime.strptime(raw_dt_utc, "%Y%m%d%H%M%S")
+        except ValueError as ex:
+            raise ValueError("invalid transaction date-time.") from ex
+
+        if preferred_time_zone is None:
+            preferred_time_zone = TimeZone("UTC, 0, 0")
+
+        if not isinstance(preferred_time_zone, TimeZone):
+            raise ValueError("Invalid Time Zone.")
+
+        dt_preferred = dt_utc + preferred_time_zone.offset
+
+
 
 a1 = Account("A100", "Ali", "Maleki")
 a1.make_transaction()
