@@ -1,13 +1,18 @@
 import itertools
+from timezone import TimeZone
 
 
 class Account:
     transaction_counter = itertools.count(100)
 
-    def __init__(self, account_number, first_name, last_name):
+    def __init__(self, account_number, first_name, last_name, time_zone=None):
         self._account_number = account_number
         self.first_name = first_name
         self.last_name = last_name
+
+        if time_zone is None:
+            time_zone = TimeZone("UTC", 0, 0)
+        self.time_zone = time_zone
 
     @property
     def account_number(self):
@@ -35,6 +40,16 @@ class Account:
         #     raise ValueError("Last name is required.")
         # else:
         self.validate_and_set_name("_last_name", new_last_name, "Last Name")
+
+    @property
+    def time_zone(self):
+        return self._time_zone
+
+    @time_zone.setter
+    def time_zone(self, value):
+        if not isinstance(value, TimeZone):
+            raise ValueError("must be a valid TimeZone object.")
+        self._time_zone = value
 
     # @staticmethod
     def validate_and_set_name(self, attribute_name, value, field_title):
