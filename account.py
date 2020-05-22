@@ -5,7 +5,7 @@ from timezone import TimeZone
 class Account:
     transaction_counter = itertools.count(100)
 
-    def __init__(self, account_number, first_name, last_name, time_zone=None):
+    def __init__(self, account_number, first_name, last_name, time_zone=None, initial_balance=0):
         self._account_number = account_number
         self.first_name = first_name
         self.last_name = last_name
@@ -13,6 +13,8 @@ class Account:
         if time_zone is None:
             time_zone = TimeZone("UTC", 0, 0)
         self.time_zone = time_zone
+
+        self._balance = float(initial_balance)
 
     @property
     def account_number(self):
@@ -40,6 +42,10 @@ class Account:
         #     raise ValueError("Last name is required.")
         # else:
         self.validate_and_set_name("_last_name", new_last_name, "Last Name")
+
+    @property
+    def balance(self):
+        return self._balance
 
     @property
     def time_zone(self):
@@ -73,10 +79,12 @@ class Account:
 # print(acc1.make_transaction())
 
 
-a = Account(65245, "Shayan", "Naghi")
+a = Account(65245, "Shayan", "Naghi", initial_balance=1_000_000)
 print(a.first_name)
 print(a.last_name)
 a.last_name = "Naghizadeh"
 print(a.first_name)
 print(a.last_name)
+
+print(a.balance)
 
