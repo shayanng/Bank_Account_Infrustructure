@@ -135,12 +135,17 @@ print(acc2.get_interest_rate)
 # print(acc1.make_transaction())
 
 
-a = Account(65245, "Shayan", "Naghi", initial_balance=1_000_000)
-print(a.first_name)
-print(a.last_name)
-a.last_name = "Naghizadeh"
-print(a.first_name)
-print(a.last_name)
+# a = Account(65245, "Shayan", "Naghi", initial_balance=1_000_000)
+# print(a.first_name)
+# print(a.last_name)
+# a.last_name = "Naghizadeh"
+# print(a.first_name)
+# print(a.last_name)
+#
+# print(a.balance)
 
-print(a.balance)
+shayan_account = Account(53678, "shayan", "Naghizadeh")
 
+shayan_account.first_name = "Reza"
+# shayan_account.first_name
+print(Account.get_interest_rate(shayan_account))
