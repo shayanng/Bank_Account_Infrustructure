@@ -2,7 +2,7 @@ import itertools
 import numbers
 from datetime import datetime
 from timezone import TimeZone
-
+from collections import namedtuple
 
 class Account:
     transaction_counter = itertools.count(100)
@@ -90,9 +90,6 @@ class Account:
         dt_str = datetime.utcnow().strftime("%Y%m%d%H%M%S")
         return f"{transaction_code}-{self.account_number}-{dt_str}-{next(Account.transaction_counter)}"
 
-    def make_transaction(self):
-        return self.generate_confirmation_code("dummy")
-
     @staticmethod
     def parse_confirmation_code(confirmation_code, preferred_time_zone=None):
         # dummy-A100-20200522193433-102
@@ -108,25 +105,38 @@ class Account:
             raise ValueError("invalid transaction date-time.") from ex
 
         if preferred_time_zone is None:
-            preferred_time_zone = TimeZone("UTC, 0, 0")
+            preferred_time_zone = TimeZone("UTC", 0, 0)
 
         if not isinstance(preferred_time_zone, TimeZone):
             raise ValueError("Invalid Time Zone.")
 
         dt_preferred = dt_utc + preferred_time_zone.offset
+        dt_preferred_str = f"{dt_preferred.strftime('%Y-%m-%d %H:%M:%S')} ({preferred_time_zone.name})"
+
+        return Confirmation(account_number, transaction_code, transaction_id, dt_utc.isoformat(), dt_preferred_str)
+
+    def deposit(self, value):
+        if not isinstance(value, numbers.Real):
+            raise ValueError("deposit must be a real number.")
+        if value <= 0:
+            raise ValueError("deposit must a positive number")
+
+        transaction_code = Account._transaction_codes
 
 
 
-a1 = Account("A100", "Ali", "Maleki")
-a1.make_transaction()
-a1.make_transaction()
-# generate_confirmation_code(62536, 6500, "X")
 
-acc1 = Account(42524, "Shayan", "naghi")
-acc2 = Account(54987, "Reza", "Noghshi")
 
-print(acc1.get_interest_rate)
-print(acc2.get_interest_rate)
+# a1 = Account("A100", "Ali", "Maleki")
+# a1.make_transaction()
+# a1.make_transaction()
+# # generate_confirmation_code(62536, 6500, "X")
+#
+# acc1 = Account(42524, "Shayan", "naghi")
+# acc2 = Account(54987, "Reza", "Noghshi")
+#
+# print(acc1.get_interest_rate)
+# print(acc2.get_interest_rate)
 
 
 #
@@ -144,8 +154,17 @@ print(acc2.get_interest_rate)
 #
 # print(a.balance)
 
-shayan_account = Account(53678, "shayan", "Naghizadeh")
+Confirmation = namedtuple('Confirmation', 'account_number, transaction_code, transaction_id, time_utc, time')
 
-shayan_account.first_name = "Reza"
-# shayan_account.first_name
-print(Account.get_interest_rate(shayan_account))
+a = Account("A100", "Ali", "IDLE")
+confirmation_code = a.make_transaction()
+Account.parse_confirmation_code(confirmation_code)
+
+try:
+    Account.parse_confirmation_code('X-A100-asdasd-123')
+except ValueError as ex:
+    print(ex)
+    print(ex.__cause__)
+
+
+
