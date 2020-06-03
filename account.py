@@ -85,6 +85,13 @@ class Account:
             raise ValueError(f"{field_title} is required.")
         setattr(self, attribute_name, value)
 
+    @staticmethod
+    def validate_real_number(value, min_value=None):
+        if not isinstance(value, numbers.Real):
+            raise ValueError("must be a real number")
+        if min_value is not None and value < min_value:
+            raise ValueError(f"value must be at least {min_value}.")
+        return value
 
     def generate_confirmation_code(self, transaction_code):
         dt_str = datetime.utcnow().strftime("%Y%m%d%H%M%S")
@@ -116,10 +123,7 @@ class Account:
         return Confirmation(account_number, transaction_code, transaction_id, dt_utc.isoformat(), dt_preferred_str)
 
     def deposit(self, value):
-        if not isinstance(value, numbers.Real):
-            raise ValueError("deposit must be a real number.")
-        if value <= 0:
-            raise ValueError("deposit must a positive number")
+        value = Account.validate_real_number(value, 0.01)
 
         transaction_code = Account._transaction_codes["deposit"]
         conf_code = self.generate_confirmation_code(transaction_code)
@@ -127,7 +131,7 @@ class Account:
         return conf_code
 
     def withdraw(self, value):
-        # todo: refactor to use common validation
+        value = Account.validate_real_number(value, 0.01)
 
         accepted = False
         if self.balance - value < 0:
