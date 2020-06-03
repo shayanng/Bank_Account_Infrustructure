@@ -121,8 +121,34 @@ class Account:
         if value <= 0:
             raise ValueError("deposit must a positive number")
 
-        transaction_code = Account._transaction_codes
+        transaction_code = Account._transaction_codes["deposit"]
+        conf_code = self.generate_confirmation_code(transaction_code)
+        self._balance += value
+        return conf_code
 
+    def withdraw(self, value):
+        # todo: refactor to use common validation
+
+        accepted = False
+        if self.balance - value < 0:
+            transaction_code = Account._transaction_codes["rejected"]
+        else:
+            accepted = True
+            transaction_code = Account._transaction_codes["withdraw"]
+            self._balance -= value
+
+        conf_code = self.generate_confirmation_code(transaction_code)
+
+        if accepted:
+            self._balance -= value
+
+        return conf_code
+
+    def pay_interest(self):
+        interest = self.balance * Account.get_interest_rate() / 100
+        confirmation_code = self.generate_confirmation_code(self._transaction_codes["interest"])
+        self._balance += interest
+        return confirmation_code
 
 
 
@@ -156,15 +182,28 @@ class Account:
 
 Confirmation = namedtuple('Confirmation', 'account_number, transaction_code, transaction_id, time_utc, time')
 
-a = Account("A100", "Ali", "IDLE")
-confirmation_code = a.make_transaction()
-Account.parse_confirmation_code(confirmation_code)
+a = Account("A100", "Ali", "IDLE", initial_balance=1000)
 
 try:
-    Account.parse_confirmation_code('X-A100-asdasd-123')
+    a.deposit(100)
 except ValueError as ex:
     print(ex)
     print(ex.__cause__)
+
+print(a.balance)
+
+a.withdraw(150)
+
+print(a.balance)
+
+# confirmation_code = a.make_transaction()
+# Account.parse_confirmation_code(confirmation_code)
+#
+# try:
+#     Account.parse_confirmation_code('X-A100-asdasd-123')
+# except ValueError as ex:
+#     print(ex)
+#     print(ex.__cause__)
 
 
 
